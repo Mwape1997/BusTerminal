@@ -1,0 +1,36 @@
+body{
+    background-color: rgba(244, 91, 105, 1);
+    font-family: 'Asap', sans-serif;
+}
+
+input[type=radio] + .details{
+    margin-bottom: 30px;
+    display: none;
+}
+
+input[type=radio]:checked + .reveal_if_contactPerson {
+    display: block;
+}
+
+input[type=radio]:checked + .reveal_if_loadingPersonal {
+    display: block;
+}
+.wrapper{
+    margin-top: 80px;
+    margin-bottom: 80px;
+}
+.form-signin{
+    max-width: 380px;
+    padding: 15px 35px 45px;
+    margin: 0 auto;
+    background-color: #fff;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.form-signin-heading{
+    margin-bottom: 30px;
+}
+
+input[type=radio] {
+    float:left;
+}
+
