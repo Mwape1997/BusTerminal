@@ -21,7 +21,7 @@
         if (request.getParameter("reqRoom").equals("reqRoom")) {
             ContactPersonal contactPersonal = new ContactPersonal(loginBean);
 
-            if(contactPersonal.requestRoom()){
+            if(contactPersonal.bookRoom()){
                 out.print("Room reserved!");
             } else {
                 out.print("Could not reserve Room!");

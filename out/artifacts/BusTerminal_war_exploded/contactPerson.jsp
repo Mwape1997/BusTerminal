@@ -15,6 +15,7 @@
     String svnr="";
     String birthDate="";
     String userPosition="";
+
     if (loginBean == null) {
         response.sendRedirect("index.jsp");
         session.setAttribute("loginMsg", "You need to login first!");
@@ -23,9 +24,12 @@
         svnr = loginBean.getSvnr();
         birthDate = loginBean.getBirthDate();
         userPosition = loginBean.getUserPosition();
+
     }
 
 %>
+
+
 <html>
 <head>
     <title>ContactPerson</title>
@@ -132,7 +136,7 @@
     <h2>Zimmer Buchen</h2>
 
 
-    <form method="post">
+    <form method="post" action="reqRoom.jsp">
 
         <label for="Zimmernummer">Zimmernummer:</label>
         <input type="number" id="Zimmernummer" name="Zimmernummer" required>
@@ -159,19 +163,22 @@
         <c:catch var="exception">
 
 
+
             <sql:setDataSource var = "snapshot" driver = "com.mysql.jdbc.Driver"
                                url = "jdbc:mysql://localhost:3306/"
                                user = "root"  password = ""/>
-            <sql:update dataSource = "${snapshot}" var = "result">
-                INSERT INTO bucht (vierstellZahl, GebDat, Zimmernummer, Buchungsnummer, Buchungsdatum, Beginnzeit, Endzeit) VALUES (?, ?, ?, ?, ?, ?, ?);
-                <sql:param value="${param.vierstellZahl}" />
-                <sql:param value="${param.GebDat}" />
+            <sql:update dataSource = "${snapshot}" var = "result"
+                        sql="INSERT INTO bucht (vierstellZahl, GebDat, Zimmernummer, Buchungsnummer, Buchungsdatum, Beginnzeit, Endzeit) VALUES (?, ?, ?, ?, ?, ?, ?)">
+                <sql:param value="${svnr}" />
+                <sql:param value="${birthDate}" />
                 <sql:param value="${param.Zimmernummer}" />
                 <sql:param value="${param.Buchungsnummer}" />
-                <sql:param value="${param.Buchungsdatum}" />
-                <sql:param value="${param.Beginnzeit}" />
-                <sql:param value="${param.Endzeit}" />
+                <sql:dateParam value="${param.Buchungsdatum}" />
+                <sql:timeParam value="${param.Beginnzeit}" />
+                <sql:timeParam value="${param.Endzeit}" />
             </sql:update>
+            <c:out value="${param.Buchungsdatum}"/>
+            <c:out value="${param.Beginnzeit}" />
 
 
 
