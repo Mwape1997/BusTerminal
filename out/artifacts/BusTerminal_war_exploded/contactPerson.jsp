@@ -28,67 +28,162 @@
 %>
 <html>
 <head>
-    <title>LoadingPersonal</title>
+    <title>ContactPerson</title>
+    <script type="text/javascript">
+        /*Function to handle the hidden fields of the radio buttons (Customer Number, License Number)*/
+        function handleClick(clickedId)
+        {
+            if(clickedId === "requestBtn"){
+                document.getElementById('requestDiv').style.visibility = "hidden";
+                document.getElementById('releaseDiv').style.visibility = "visible";
+            }
+            else if(clickedId === "releaseBtn"){
+                document.getElementById('releaseDiv').style.visibility = "hidden";
+                document.getElementById('requestDiv').style.visibility = "visible";
+            }
+        }
+    </script>
 </head>
 <body>
-<jsp:useBean id="objLoginBean" class="at.ac.fhcampuswien.bean.LoginBean"/>
-<jsp:setProperty name="objLoginBean" property="*"/>
 <div about="Logout Button" align="right"><a href="logout.jsp">Logout</a></div>
 
-<div about="View of Booked Rooms" align="left">
-    <%
-        String result;
-        ContactPersonal contactPersonal = new ContactPersonal(loginBean);
-        //LoginBean loginBean = (LoginBean) session.getAttribute("userSession");
-        //out.print("hier" + loginBean.getLicenseNumber().toString());
-        //out.print("Lizenznummer" + objLoginBean.getLicenseNumber().toString());
-        result = contactPersonal.showRoom();
+<div about="Personal Data">
+    <h3>Persönliche Daten</h3>
+    <table style="width:25%" border="1px">
+        <tr>
+            <th>Vorname</th>
+            <th>Nachname</th>
+            <th>Wohnort</th>
 
-        if(result==null){
-            out.print("<p>Sie besitzen noch keine Rooms!</p>\n" +
-                    "<form name=\"reqRoom\" method=\"post\" action=\"reqRoom.jsp\">\n" +
-                    "        <input type=\"submit\" name=\"Request Room\" value=\"reqRoom\"/>\n" +
-                    "    </form>");
-            /*if(ladePersonal.reqErmKarte()){
-                out.print("Erfolgreich reserviert");
-            }else {
-                out.print("Konnte Keine Karte reservieren");
-            }*/
-        }
-        else {
-            out.print("<p>Room Number: " + result + "</p>");
-        }
-    %>
+        </tr>
+        <tr>
+            <%
+                ContactPersonal contactPersonal = new ContactPersonal(loginBean);
+                ArrayList<String> sqlResultList;
+                sqlResultList = contactPersonal.getPersonalData();
+            %>
+            <td>
+                <%
+                    out.print(sqlResultList.get(0));
+                %>
+            </td>
+            <td>
+                <%
+                    out.print(sqlResultList.get(1));
+                %>
+            </td>
+            <td>
+                <%
+                    out.print(sqlResultList.get(2));
+                %>
+            </td>
+        </tr>
+    </table>
 </div>
 <br>
 <br>
 <div about="View of Terminal">
+    <h3>Ihre gebuchten Zimmer</h3>
     <table style="width:50%" border="2px">
         <tr>
-            <th>ID Number</th>
-            <th>Room</th>
+            <th>Zimmernummer</th>
+            <th>Buchungsdatum</th>
+            <th>Beginnzeit</th>
+            <th>Endzeit</th>
         </tr>
         <tr>
             <%
-                ArrayList<String> roomsList;
-                roomsList = contactPersonal.getListOfRooms();
-                int a = 0;
-
-                for(int i=0; i<roomsList.size(); i++){
-                    out.print("<td>" + roomsList.get(i) + "</td>");
-                    if((i+1)%2==0){
+                sqlResultList = contactPersonal.getList();
+                for (int i = 0; i < sqlResultList.size(); i++) {
+                    out.print("<td>" + sqlResultList.get(i) + "</td>");
+                    if ((i + 1) % 4 == 0) {
                         out.print("</tr><tr>");
                     }
                 }
-
-        /*terminalList.forEach(value -> {
-
-                System.out.print("<td>" + value + "</td>");
-
-        });*/
             %>
         </tr>
     </table>
 </div>
+<br>
+<br>
+<br>
+<div>
+
+
+        <table>
+            <tr>
+                <th>Zimmernummer</th>
+                <th>Buchungsdatum</th>
+                <th>Beginzeit</th>
+                <th>Endzeit</th>
+            </tr>
+            <c:forEach var = "row" items = "${result.rows}">
+                <tr>
+                    <td><c:out value = "${row.Zimmernummer}"/></td>
+                    <td><c:out value = "${row.Buchungsdatum}"/></td>
+                    <td><c:out value = "${row.Beginnzeit}"/></td>
+                    <td><c:out value = "${row.Endzeit}"/></td>
+                </tr>
+            </c:forEach>
+        </table>
+
+
+    <br>
+    <h2>Zimmer Buchen</h2>
+
+
+    <form method="post">
+
+        <label for="Zimmernummer">Zimmernummer:</label>
+        <input type="number" id="Zimmernummer" name="Zimmernummer" required>
+
+        <label for="Buchungsdatum">Buchungsdatum:</label>
+        <input type="date" id="Buchungsdatum" name="Buchungsdatum" min="0" required><br>
+
+        <label for="Beginnzeit">Beginnzeit:</label>
+        <input type="time" id="Beginnzeit" name="Beginnzeit" min="0"required>
+
+        <label for="Endzeit">Endzeit:</label>
+        <input type="time" id="Endzeit" name="Endzeit"><br>
+
+
+        <input type="submit" value="bucht">
+
+    </form>
+
+
+    <c:if test="${not empty param.Zimmernummer && not empty param.Buchungsdatum && not empty param.Beginnzeit && not empty param.Endzeit }">
+
+
+
+        <c:catch var="exception">
+
+
+            <sql:setDataSource var = "snapshot" driver = "com.mysql.jdbc.Driver"
+                               url = "jdbc:mysql://localhost:3306/"
+                               user = "root"  password = ""/>
+            <sql:update dataSource = "${snapshot}" var = "result">
+                INSERT INTO bucht (vierstellZahl, GebDat, Zimmernummer, Buchungsnummer, Buchungsdatum, Beginnzeit, Endzeit) VALUES (?, ?, ?, ?, ?, ?, ?);
+                <sql:param value="${param.vierstellZahl}" />
+                <sql:param value="${param.GebDat}" />
+                <sql:param value="${param.Zimmernummer}" />
+                <sql:param value="${param.Buchungsnummer}" />
+                <sql:param value="${param.Buchungsdatum}" />
+                <sql:param value="${param.Beginnzeit}" />
+                <sql:param value="${param.Endzeit}" />
+            </sql:update>
+
+
+
+
+
+        </c:catch>
+
+        <c:if test="${exception!=null}">
+            <c:out value="Unable to insert data in database. PLEASE BE SURE TO USE A UNIQUE CODE that is not used yet" />
+        </c:if>
+    </c:if>
+</div>
+
 </body>
 </html>

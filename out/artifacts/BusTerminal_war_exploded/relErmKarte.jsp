@@ -1,4 +1,3 @@
-<%@ page import="at.ac.fhcampuswien.modal.LadePersonal" %>
 <%@ page import="at.ac.fhcampuswien.bean.LoginBean" %>
 <%@ page import="at.ac.fhcampuswien.modal.Angestellter" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -28,13 +27,13 @@
 <%
     //LoginBean loginBean = (LoginBean) session.getAttribute("userSession");
     if("POST".equalsIgnoreCase(request.getMethod())) {
-        if (request.getParameter("reqErmKarte").equals("Request Card")) {
+        if (request.getParameter("relErmKarte").equals("Release Card")) {
             Angestellter angestellter = new Angestellter(loginBean);
 
-            if(angestellter.reqErmKarte()){
-                session.setAttribute("request", "Karte wurde erfolgreich reserviert!");
+            if(angestellter.relErmKarte()){
+                session.setAttribute("release", "Karte wurde erfolgreich released!");
             } else {
-                session.setAttribute("request", "Karte konnte nicht reserviert werden!");
+                session.setAttribute("release", "Karte konnte nicht released werden!");
             }
             if (loginBean.getLicenseNumber() != null){
                 if (!loginBean.getLicenseNumber().isEmpty())

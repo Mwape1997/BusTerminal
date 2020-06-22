@@ -10,89 +10,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class LadePersonal {
+public class LadePersonal extends Angestellter {
     public LoginBean loginBean;
     ResultSet resultSet;
     String sqlQuery;
 
     public LadePersonal (LoginBean loginBean){
+        super(loginBean);
         this.loginBean = loginBean;
-    }
-
-    public String showErmKarte() {
-        String ermKartenNummer = null;
-
-        DBConnection dbConnection = DBConnection.getInstance();
-        Connection connection = dbConnection.getConnection();
-        PreparedStatement preparedStatement = null;
-        try {
-            sqlQuery = "select ermäßigungskarten.Kartennummer as karte from ermäßigungskarten inner join ladepersonal on ladepersonal.Kartennummer = ermäßigungskarten.Kartennummer where vierstellZahl=? and GebDat=?";
-            preparedStatement = connection.prepareStatement(sqlQuery);
-            preparedStatement.setInt(1, Integer.parseInt(loginBean.getSvnr()));
-            preparedStatement.setString(2, loginBean.getBirthDate());
-            System.out.println(preparedStatement);
-            resultSet = preparedStatement.executeQuery();
-            //System.out.println(resultSet.toString());
-            if(resultSet.next()){
-                System.out.println("resultSet nicht leer");
-                ermKartenNummer = Integer.toString(resultSet.getInt("karte"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return ermKartenNummer;
-    }
-
-    public boolean reqErmKarte() {
-        Boolean sqlResult = false;
-
-        DBConnection dbConnection = DBConnection.getInstance();
-        Connection connection = dbConnection.getConnection();
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet;
-        String sqlQuery;
-
-        try {
-            sqlQuery = "SELECT ermäßigungskarten.Kartennummer FROM busterminal.ladepersonal right join ermäßigungskarten on ermäßigungskarten.Kartennummer=ladepersonal.Kartennummer where ladepersonal.vierstellZahl is null";
-            preparedStatement = connection.prepareStatement(sqlQuery);
-            //preparedStatement.setInt(1, Integer.parseInt(loginBean.getSvnr()));
-            //preparedStatement.setString(2, loginBean.getBirthDate());
-            System.out.println(preparedStatement);
-            resultSet = preparedStatement.executeQuery();
-            //System.out.println(resultSet.toString());
-            if(resultSet.next()){
-                System.out.println("resultSet nicht leer" + resultSet.getInt("Kartennummer"));
-                sqlQuery = "UPDATE busterminal.ladepersonal SET Kartennummer = ? WHERE (vierstellZahl = ?) and (GebDat = ?)";
-                preparedStatement = connection.prepareStatement(sqlQuery);
-                preparedStatement.setInt(1, resultSet.getInt("Kartennummer"));
-                preparedStatement.setInt(2, Integer.parseInt(loginBean.getSvnr()));
-                preparedStatement.setString(3, loginBean.getBirthDate());
-                System.out.println(preparedStatement);
-                if(preparedStatement.executeUpdate()!=0){
-                    System.out.println("updated");
-                    sqlResult = true;
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return sqlResult;
     }
 
     public ArrayList<String> getTerminalOverwiev(){
@@ -128,4 +53,36 @@ public class LadePersonal {
         }
         return sqlResult;
     }
+
+    public String retrieveLicenseNumber() {
+        String licenseNumber="";
+        DBConnection dbConnection = DBConnection.getInstance();
+        Connection connection = dbConnection.getConnection();
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet;
+        String sqlQuery;
+        try {
+
+            sqlQuery = "select lizenznummer from busterminal.ladepersonal where vierstellZahl=? and GebDat=?";
+            preparedStatement = connection.prepareStatement(sqlQuery);
+            preparedStatement.setInt(1, Integer.parseInt(loginBean.getSvnr()));
+            preparedStatement.setString(2, loginBean.getBirthDate());
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next())
+                licenseNumber = resultSet.getString("lizenznummer");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return licenseNumber;
+    }
+
+
 }

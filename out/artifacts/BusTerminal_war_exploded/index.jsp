@@ -34,10 +34,12 @@
         String userPosition = loginBean.getUserPosition();
         //redirect user to the corresponding page if already logged in
         if(svnr != null && birthDate != null && userPosition != null){
-            if (userPosition.equals("contactPerson"))
+            if (loginBean.getCustomerNumber() != null)
                 response.sendRedirect("contactPerson.jsp");
-            else if (userPosition.equals("loadingPersonal"))
+            else if (loginBean.getLicenseNumber() != null)
                 response.sendRedirect("loadingPersonal.jsp");
+            else if (userPosition.equals("angestellter"))
+                response.sendRedirect("schalterbediensteter.jsp");
         }
     }
     String status = request.getParameter("status");
@@ -69,18 +71,22 @@
                 <br>
             </div>
         </div>
+
         <div>
-            <label for="loading">Loading Personal</label>
-            <input id="loading" type="radio" name="userPosition" value="loadingPersonal" onclick="handleClick(this.id)" required>
+            <label for="angestellter">Angestellter</label>
+            <input id="angestellter" type="radio" name="userPosition" value="angestellter" onclick="handleClick(this.id)" required>
             <div class="reveal_if_loadingPersonal details">
-                <label for="licenseNumber">License Number:</label><span style="color: red;">*</span>
-                <input id="licenseNumber" type="text" name="licenseNumber">
+                <label for="angestelltennummer">Angestelltennummer:</label><span style="color: red;">*</span>
+                <input id="angestelltennummer" type="text" name="angestelltennummer">
                 <br>
             </div>
         </div>
+
         <input name="login" type="submit" value="Login"/>
+        <input name="reset" type="reset" value="Reset"/>
     </form>
     <%
+
         String loginMsg = (String) session.getAttribute("loginMsg");
         if (loginMsg != null){
             out.println(loginMsg);

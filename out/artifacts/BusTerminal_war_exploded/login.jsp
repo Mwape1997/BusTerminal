@@ -13,29 +13,31 @@
     if("POST".equalsIgnoreCase(request.getMethod())){
         if (request.getParameter("login").equals("Login")){
 
-            if (objLoginBean == null)
-                out.println("Object is NUL");
-            else{
+            LoginModal loginModal = new LoginModal();
+            boolean successful = loginModal.checkCredentials(objLoginBean);
 
-                LoginModal loginModal = new LoginModal();
-                boolean successful = loginModal.checkCredentials(objLoginBean);
-
-                if (successful) {
-                    session = request.getSession();
-                    session.setAttribute("userSession", objLoginBean); // this contains all the attributes
-                    System.out.println("From Login");
-                    System.out.println("Customer Number: " + objLoginBean.getCustomerNumber());
-                    System.out.println("License Number: " + objLoginBean.getLicenseNumber());
-                    if (objLoginBean.getCustomerNumber() != null)
-                        response.sendRedirect("contactPerson.jsp");
-                    else if (objLoginBean.getLicenseNumber() != null)
-                        response.sendRedirect("loadingPersonal.jsp");
+            if (successful) {
+                //session = request.getSession();
+                if (objLoginBean.getCustomerNumber() != null){
+                    session.setAttribute("userSession", objLoginBean);
+                    response.sendRedirect("contactPerson.jsp");
                 }
-                else {
-                    response.sendRedirect("index.jsp?status=false");
+                else if (objLoginBean.getAngestelltennummer() != null){
+                    /*entweder schalterbediensteter oder ladepersonal*/
+                    if (loginModal.isSchalterbediensteter(objLoginBean)){
+                        session.setAttribute("userSession", objLoginBean);
+                        response.sendRedirect("schalterbediensteter.jsp");
+                    }else {
+                        String licenseNumber = loginModal.retrieveLicenseNumber(objLoginBean);
+                        objLoginBean.setLicenseNumber(licenseNumber);
+                        session.setAttribute("userSession", objLoginBean);
+                        response.sendRedirect("loadingPersonal.jsp");
+                    }
                 }
             }
-
+            else {
+                response.sendRedirect("index.jsp?status=false");
+            }
         }
     }
 %>

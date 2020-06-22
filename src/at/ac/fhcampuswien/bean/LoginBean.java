@@ -1,13 +1,13 @@
 package at.ac.fhcampuswien.bean;
 
-import java.util.Date;
-
 public class LoginBean {
     private String svnr;
     private String birthDate;
     private String customerNumber;
     private String licenseNumber;
     private String userPosition;
+    private String angestelltennummer;
+
 
     public String getSvnr() {
         return svnr;
@@ -48,4 +48,13 @@ public class LoginBean {
     public void setUserPosition(String userPosition) {
         this.userPosition = userPosition;
     }
+
+    public String getAngestelltennummer() {
+        return angestelltennummer;
+    }
+
+    public void setAngestelltennummer(String angestelltennummer) {
+        this.angestelltennummer = angestelltennummer;
+    }
+
 }

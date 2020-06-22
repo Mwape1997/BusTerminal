@@ -1,7 +1,7 @@
 <%@ page import="at.ac.fhcampuswien.bean.LoginBean" %>
 <%@ page import="at.ac.fhcampuswien.modal.LadePersonal" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="java.io.IOException" %>
+<%@ page import="at.ac.fhcampuswien.modal.Schalterbediensteter" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%
@@ -11,12 +11,12 @@
     response.setHeader("Pragma", "no-cache");
     response.setHeader("Expires", "0");
 
-    session = request.getSession();
+    //session = request.getSession();
     LoginBean loginBean = (LoginBean) session.getAttribute("userSession");
     if (loginBean != null) {
         if (loginBean.getAngestelltennummer() != null) {
-            if (loginBean.getLicenseNumber() == null)// Angestellter hat keine LN ==> Schalterbediensteter
-                response.sendRedirect("schalterbediensteter.jsp");
+            if (loginBean.getLicenseNumber() != null)// Angestellter hat keine LN ==> Schalterbediensteter
+                response.sendRedirect("loadingPersonal.jsp");
         } else
             response.sendRedirect("logout.jsp");
     } else {
@@ -24,11 +24,13 @@
         response.sendRedirect("index.jsp");
         return;
     }
+
 %>
+
 
 <html>
 <head>
-    <title>LoadingPersonal</title>
+    <title>Schalterbediensteter</title>
     <script type="text/javascript">
         /*Function to handle the hidden fields of the radio buttons (Customer Number, License Number)*/
         function handleClick(clickedId)
@@ -45,6 +47,7 @@
     </script>
 </head>
 <body>
+
 <div about="Logout Button" align="right"><a href="logout.jsp">Logout</a></div>
 
 <div about="Personal Data">
@@ -57,9 +60,8 @@
         </tr>
         <tr>
             <%
-                LadePersonal ladePersonal = new LadePersonal(loginBean);
-                ArrayList<String> sqlResultList;
-                sqlResultList = ladePersonal.getPersonalData();
+                Schalterbediensteter schalterbediensteter = new Schalterbediensteter(loginBean);
+                ArrayList<String> sqlResultList = schalterbediensteter.getPersonalData();
             %>
             <td>
                 <%
@@ -81,36 +83,46 @@
 </div>
 <br>
 <br>
-<div about="View of Terminal">
-    <h3>Ihre Terminaldaten</h3>
-    <table style="width:50%" border="2px">
+
+<div about="Der nächste Schalterbediensteter">
+    <h3>Sie übergeben</h3>
+    <table style="width:25%" border="1px">
         <tr>
-            <th>Terminal</th>
-            <th>Anzahl</th>
-            <th>Kapazität</th>
+            <th>Vorname</th>
+            <th>Nachname</th>
+            <th>Angestelltennummer</th>
         </tr>
         <tr>
             <%
-                sqlResultList = ladePersonal.getTerminalOverwiev();
-                for (int i = 0; i < sqlResultList.size(); i++) {
-                    out.print("<td>" + sqlResultList.get(i) + "</td>");
-                    if ((i + 1) % 3 == 0) {
-                        out.print("</tr><tr>");
-                    }
-                }
+                sqlResultList = schalterbediensteter.getNextSchalterbediensteter();
             %>
+            <td>
+                <%
+                    out.print(sqlResultList.get(0));
+                %>
+            </td>
+            <td>
+                <%
+                    out.print(sqlResultList.get(1));
+                %>
+            </td>
+            <td>
+                <%
+                    out.print(sqlResultList.get(2));
+                %>
+            </td>
         </tr>
     </table>
 </div>
 <br>
 <br>
-<br>
+
 <div about="View of Ermäßigungskarte" align="left">
     <h3>Ihre Ermäßigungskarte</h3>
     <br>
     <%
         int result;
-        result = ladePersonal.showErmKarte();
+        result = schalterbediensteter.showErmKarte();
         if (result == 0) {
     %>
     <div id="requestDiv">
@@ -130,6 +142,7 @@
     </div>
     <%
         }
+
         String releaseMsg = (String) session.getAttribute("release");
         String requestMsg = (String) session.getAttribute("request");
         if (releaseMsg != null){
@@ -140,6 +153,7 @@
             out.print(requestMsg);
             session.removeAttribute("request");
         }
+
     %>
 </div>
 
